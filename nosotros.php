@@ -89,7 +89,7 @@ $IMAGENES = include 'includes/imagenes.php';
             </article>
         </div>
         
-        <!-- HISTORIA / LÍNEA DE TIEMPO MEJORADA -->
+        <!-- HISTORIA / LÍNEA DE TIEMPO MODERNA -->
         <section class="history" aria-labelledby="history-title">
             <header class="history__header">
                 <h3 id="history-title" class="history__title">Nuestra Historia</h3>
@@ -337,3 +337,43 @@ $IMAGENES = include 'includes/imagenes.php';
         </div>
     </div>
 </section>
+
+<!-- Forzar animación de contadores de impacto -->
+<script>
+(function() {
+    'use strict';
+    
+    function animateCounter(el) {
+        if (el.hasAttribute('data-animated')) return;
+        const target = parseInt(el.getAttribute('data-count') || '0', 10);
+        if (!target) return;
+        
+        el.setAttribute('data-animated', 'true');
+        const duration = 1800;
+        const start = performance.now();
+        
+        function tick(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 4);
+            el.textContent = new Intl.NumberFormat('es-CR').format(Math.floor(target * eased));
+            if (progress < 1) requestAnimationFrame(tick);
+            else el.textContent = new Intl.NumberFormat('es-CR').format(target);
+        }
+        requestAnimationFrame(tick);
+    }
+    
+    // Animar inmediatamente
+    document.querySelectorAll('.stat-card__number').forEach(animateCounter);
+    
+    // Fallback al hacer scroll
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) animateCounter(e.target); });
+    }, { rootMargin: '100px', threshold: 0.1 });
+    
+    document.querySelectorAll('.stat-card__number').forEach(el => {
+        if (!el.hasAttribute('data-animated')) observer.observe(el);
+    });
+})();
+</script>
+
+<?php include 'includes/footer.php'; ?>
